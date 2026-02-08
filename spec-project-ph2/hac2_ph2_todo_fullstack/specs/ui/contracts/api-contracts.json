@@ -1,0 +1,355 @@
+# Frontend API Contracts
+
+## Overview
+This document defines the API contracts that the frontend UI expects from the backend services. These contracts ensure proper integration between the elegant frontend UI and the backend services.
+
+## Authentication Endpoints
+
+### POST /api/auth/login
+Authenticate user and return session token
+
+**Request:**
+```json
+{
+  "email": "user@example.com",
+  "password": "securePassword123"
+}
+```
+
+**Response (200 OK):**
+```json
+{
+  "user": {
+    "id": "uuid-string",
+    "email": "user@example.com",
+    "name": "John Doe"
+  },
+  "token": "jwt-token-string",
+  "expiresAt": "2026-02-08T10:00:00Z"
+}
+```
+
+**Error Response (401 Unauthorized):**
+```json
+{
+  "error": "Invalid credentials",
+  "message": "Email or password is incorrect"
+}
+```
+
+### POST /api/auth/signup
+Register new user account
+
+**Request:**
+```json
+{
+  "email": "user@example.com",
+  "password": "securePassword123",
+  "name": "John Doe"
+}
+```
+
+**Response (201 Created):**
+```json
+{
+  "user": {
+    "id": "uuid-string",
+    "email": "user@example.com",
+    "name": "John Doe"
+  },
+  "token": "jwt-token-string",
+  "expiresAt": "2026-02-08T10:00:00Z"
+}
+```
+
+## Task Management Endpoints
+
+### GET /api/tasks
+Retrieve user's tasks with optional filtering
+
+**Query Parameters:**
+- `status`: Filter by completion status ("all", "active", "completed")
+- `priority`: Filter by priority ("low", "normal", "high", "urgent")
+- `limit`: Number of tasks to return (default: 20, max: 100)
+- `offset`: Offset for pagination (default: 0)
+
+**Response (200 OK):**
+```json
+{
+  "tasks": [
+    {
+      "id": "uuid-string",
+      "title": "Complete project proposal",
+      "description": "Finish the project proposal document",
+      "completed": false,
+      "priority": "high",
+      "dueDate": "2026-02-10T09:00:00Z",
+      "createdAt": "2026-02-07T09:00:00Z",
+      "updatedAt": "2026-02-07T09:00:00Z",
+      "userId": "user-uuid-string",
+      "categoryId": "category-uuid-string",
+      "tags": ["work", "important"]
+    }
+  ],
+  "pagination": {
+    "page": 1,
+    "limit": 20,
+    "total": 15,
+    "hasNext": false,
+    "hasPrevious": false
+  }
+}
+```
+
+### POST /api/tasks
+Create a new task
+
+**Request:**
+```json
+{
+  "title": "New task title",
+  "description": "Detailed task description",
+  "priority": "normal",
+  "dueDate": "2026-02-15T17:00:00Z",
+  "categoryId": "category-uuid-string",
+  "tags": ["tag1", "tag2"]
+}
+```
+
+**Response (201 Created):**
+```json
+{
+  "id": "uuid-string",
+  "title": "New task title",
+  "description": "Detailed task description",
+  "completed": false,
+  "priority": "normal",
+  "dueDate": "2026-02-15T17:00:00Z",
+  "createdAt": "2026-02-07T10:00:00Z",
+  "updatedAt": "2026-02-07T10:00:00Z",
+  "userId": "user-uuid-string",
+  "categoryId": "category-uuid-string",
+  "tags": ["tag1", "tag2"]
+}
+```
+
+### PUT /api/tasks/{taskId}
+Update an existing task
+
+**Path Parameter:**
+- `taskId`: UUID of the task to update
+
+**Request:**
+```json
+{
+  "title": "Updated task title",
+  "description": "Updated task description",
+  "completed": true,
+  "priority": "high",
+  "dueDate": "2026-02-12T17:00:00Z",
+  "categoryId": "new-category-uuid-string",
+  "tags": ["updated-tag1", "updated-tag2"]
+}
+```
+
+**Response (200 OK):**
+```json
+{
+  "id": "uuid-string",
+  "title": "Updated task title",
+  "description": "Updated task description",
+  "completed": true,
+  "priority": "high",
+  "dueDate": "2026-02-12T17:00:00Z",
+  "createdAt": "2026-02-07T10:00:00Z",
+  "updatedAt": "2026-02-07T11:00:00Z",
+  "userId": "user-uuid-string",
+  "categoryId": "new-category-uuid-string",
+  "tags": ["updated-tag1", "updated-tag2"]
+}
+```
+
+### DELETE /api/tasks/{taskId}
+Delete a task
+
+**Path Parameter:**
+- `taskId`: UUID of the task to delete
+
+**Response (204 No Content)**
+
+### PATCH /api/tasks/{taskId}/toggle-complete
+Toggle task completion status
+
+**Path Parameter:**
+- `taskId`: UUID of the task to update
+
+**Response (200 OK):**
+```json
+{
+  "id": "uuid-string",
+  "title": "Task title",
+  "completed": true,
+  "updatedAt": "2026-02-07T11:00:00Z"
+}
+```
+
+## Category Management Endpoints
+
+### GET /api/categories
+Retrieve user's categories
+
+**Response (200 OK):**
+```json
+{
+  "categories": [
+    {
+      "id": "uuid-string",
+      "name": "Work",
+      "color": "#3B82F6",
+      "userId": "user-uuid-string",
+      "createdAt": "2026-02-07T09:00:00Z",
+      "updatedAt": "2026-02-07T09:00:00Z",
+      "sortOrder": 0
+    }
+  ]
+}
+```
+
+### POST /api/categories
+Create a new category
+
+**Request:**
+```json
+{
+  "name": "Personal",
+  "color": "#10B981",
+  "sortOrder": 1
+}
+```
+
+**Response (201 Created):**
+```json
+{
+  "id": "uuid-string",
+  "name": "Personal",
+  "color": "#10B981",
+  "userId": "user-uuid-string",
+  "createdAt": "2026-02-07T10:00:00Z",
+  "updatedAt": "2026-02-07T10:00:00Z",
+  "sortOrder": 1
+}
+```
+
+## User Profile Endpoints
+
+### GET /api/profile
+Retrieve current user profile
+
+**Response (200 OK):**
+```json
+{
+  "id": "uuid-string",
+  "email": "user@example.com",
+  "name": "John Doe",
+  "avatar": "https://example.com/avatar.jpg",
+  "preferences": {
+    "theme": "dark",
+    "notifications": true,
+    "timezone": "America/New_York"
+  },
+  "createdAt": "2026-01-01T00:00:00Z",
+  "updatedAt": "2026-02-07T10:00:00Z"
+}
+```
+
+### PUT /api/profile
+Update user profile
+
+**Request:**
+```json
+{
+  "name": "John Smith",
+  "avatar": "https://example.com/new-avatar.jpg",
+  "preferences": {
+    "theme": "light",
+    "notifications": false,
+    "timezone": "Europe/London"
+  }
+}
+```
+
+**Response (200 OK):**
+```json
+{
+  "id": "uuid-string",
+  "email": "user@example.com",
+  "name": "John Smith",
+  "avatar": "https://example.com/new-avatar.jpg",
+  "preferences": {
+    "theme": "light",
+    "notifications": false,
+    "timezone": "Europe/London"
+  },
+  "createdAt": "2026-01-01T00:00:00Z",
+  "updatedAt": "2026-02-07T11:00:00Z"
+}
+```
+
+## Common Error Responses
+
+### 400 Bad Request
+```json
+{
+  "error": "Validation error",
+  "message": "Field validation failed",
+  "details": [
+    {
+      "field": "email",
+      "message": "Must be a valid email address"
+    }
+  ]
+}
+```
+
+### 401 Unauthorized
+```json
+{
+  "error": "Unauthorized",
+  "message": "Authentication required"
+}
+```
+
+### 403 Forbidden
+```json
+{
+  "error": "Forbidden",
+  "message": "Insufficient permissions"
+}
+```
+
+### 404 Not Found
+```json
+{
+  "error": "Not found",
+  "message": "Requested resource does not exist"
+}
+```
+
+### 500 Internal Server Error
+```json
+{
+  "error": "Internal server error",
+  "message": "An unexpected error occurred"
+}
+```
+
+## Headers
+
+### Request Headers
+- `Authorization: Bearer {token}` - Required for authenticated endpoints
+- `Content-Type: application/json` - Required for JSON payloads
+- `Accept: application/json` - Expected response format
+
+### Response Headers
+- `Content-Type: application/json` - Response content type
+- `X-Request-ID: uuid-string` - Unique request identifier for debugging
